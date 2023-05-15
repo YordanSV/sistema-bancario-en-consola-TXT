@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.List;
+import java.util.ArrayList;
 // Programa de explicación básica en Java
 
 public class Usuario {
@@ -30,6 +32,9 @@ public class Usuario {
     }
 
     public static void main(String[] args) {
+        // Código para limpiar la terminal
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
         /*
         Scanner scanner = new Scanner(System.in);
         int opcion = 0;
@@ -43,20 +48,60 @@ public class Usuario {
             }
         }
         */
-        singIn();
-        createUser();
+       Usuario usuario;
+       do{
+        usuario = singIn();
+       }while(usuario == null);
+
+        //createUser();
     }
-    public static void singIn() { // Iniciar sesion
+    public static Usuario singIn() { // Iniciar sesion
         String nombreArchivo = "USUARIO.txt";
-        
+        Scanner scanner = new Scanner(System.in);
+        Usuario usuario = null;
+        System.out.println("=== Iniciar sesion ===");
+        System.out.println("Ingrese su identificacion: ");
+        int identificacion = scanner.nextInt();
+        scanner.nextLine();
+        // Código para limpiar la terminal
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+
         try (BufferedReader br = new BufferedReader(new FileReader(nombreArchivo))) {
             String linea;
+            int contador = 0;
+            List<String> lista = new ArrayList<>();
             while ((linea = br.readLine()) != null) {
-                System.out.println(linea);
+                lista.add(linea);
+                if(contador == 5 && Integer.parseInt(lista.get(2)) == identificacion){
+                    System.out.println("Ingrese su clave: ");
+                    String clave = scanner.nextLine();
+                    if(clave.equals(lista.get(3))){
+                        System.out.println("Se ha iniciado sesion exitosamente");
+                        usuario = new Usuario(lista.get(0), lista.get(1), Integer.parseInt(lista.get(2)), lista.get(3), Integer.parseInt(lista.get(4)), Boolean.parseBoolean(lista.get(5)));
+                        break;
+                    }else{
+                        // Código para limpiar la terminal
+                        System.out.print("\033[H\033[2J");
+                        System.out.flush();
+                        System.out.println("Clave incorrecta intente de nuevo");
+                        return null;
+                    }
+                }else if(contador == 5){
+                    lista.clear();
+                    contador = 0;
+                }else{
+                    contador = contador+1;
+                }
             }
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
+        if(usuario == null){
+            System.out.println("El usuario no existe intente de nuevo");
+        }
+        scanner.close();
+        return usuario;
     }
 
     public static void createUser() { // crear usuario
@@ -82,9 +127,9 @@ public class Usuario {
         System.out.println("Desea que sea administrador? ");
         System.out.println("1. Sí");
         System.out.println("2. No");
-        int administrador = scanner.nextInt();
+        int esAdministrador = scanner.nextInt();
         scanner.nextLine();
-        if(administrador == 1){
+        if(esAdministrador == 1){
             saveUser(nombre, apellido, identificacion,clave, edad, true);
         }else{
             saveUser(nombre, apellido, identificacion, clave, edad, false);
