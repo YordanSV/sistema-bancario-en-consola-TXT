@@ -77,7 +77,7 @@ public class Usuario {
 
         System.out.println("Ingrese su edad: ");
         int edad = scanner.nextInt();
-        scanner.nextLine(); // Limpiar el búfer después de leer un entero
+        scanner.nextLine();
 
         System.out.println("Desea que sea administrador? ");
         System.out.println("1. Sí");
