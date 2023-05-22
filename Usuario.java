@@ -109,6 +109,8 @@ public class Usuario {
         int esAdministrador = scanner.nextInt();
         scanner.nextLine();
         saveUser(nombre, apellido, identificacion, clave, edad, (esAdministrador == 1) ? true : false);
+        Cuenta cuenta = new Cuenta(identificacion);
+        cuenta.saveCuenta();
     }
 
     // ==================== Guardar usuario ====================
