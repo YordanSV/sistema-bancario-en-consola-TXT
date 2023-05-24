@@ -68,26 +68,6 @@ public class Usuario {
         return usuario;
     }
 
-    // ==================== Obtener usuario ====================
-    public static Usuario getUser(int identificacion) { // Iniciar sesion
-        String nombreArchivo = "USUARIO.txt";
-        Usuario usuario = null;
-        try (BufferedReader br = new BufferedReader(new FileReader(nombreArchivo))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                String[] atributos = linea.split(",");
-                if (identificacion == Integer.parseInt(atributos[2])) {
-                    usuario = new Usuario(atributos[0], atributos[1], Integer.parseInt((atributos[2])), atributos[3],
-                            Integer.parseInt((atributos[4])), Boolean.parseBoolean(atributos[5]));
-                    return usuario;
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error al leer el archivo: " + e.getMessage());
-        }
-        return usuario;
-    }
-
     // ==================== Crear usuario ====================
     public static void createUser() {
         Scanner scanner = new Scanner(System.in);
@@ -109,13 +89,12 @@ public class Usuario {
         int esAdministrador = scanner.nextInt();
         scanner.nextLine();
         saveUser(nombre, apellido, identificacion, clave, edad, (esAdministrador == 1) ? true : false);
-        Cuenta cuenta = new Cuenta(identificacion);
+        Cuenta cuenta =  new Cuenta(identificacion);
         cuenta.saveCuenta();
     }
 
     // ==================== Guardar usuario ====================
-    public static void saveUser(String nombre, String apellido, int identificacion, String clave, int edad,
-            boolean esAdministrador) {
+    public static void saveUser(String nombre, String apellido, int identificacion, String clave, int edad,boolean esAdministrador) {
         String filePath = "USUARIO.txt";
         try {
             // Abrir el archivo en modo de escritura
@@ -162,15 +141,12 @@ public class Usuario {
             String linea;
             while ((linea = br.readLine()) != null) {
                 String[] atributos = linea.split(","); // Separar atributos por coma
-
+    
                 boolean eliminarLinea = false;
-                for (String atributo : atributos) {
-                    if (Integer.parseInt(atributo) == identificacion) {
-                        eliminarLinea = true;
-                        break;
-                    }
+                if (Integer.parseInt(atributos[2]) == identificacion) {
+                    eliminarLinea = true;
                 }
-
+    
                 if (!eliminarLinea) {
                     bw.write(linea); // Escribir la línea en el archivo nuevo
                     bw.newLine();
@@ -181,12 +157,12 @@ public class Usuario {
         }
         archivoIn.delete();
         archivoOut.renameTo(archivoIn);
-        System.out.println("Se ha eliminado corectamente");
-    }
+        System.out.println("Se ha eliminado correctamente");
+    }    
 
     public static void modifyUser() {
         File archivoIn = new File("USUARIO.txt");
-        File archivoOut = new File("USUARIO.txt");
+        File archivoOut = new File("USUARIO_temp.txt");
         Scanner scanner = new Scanner(System.in);
         System.out.println("Ingrese el numero de identidad");
         int identificacion = scanner.nextInt();
@@ -201,58 +177,39 @@ public class Usuario {
         scanner.nextLine();
         System.out.println("Ingrese el cambio");
         String cambio = scanner.nextLine();
-
+    
         try (BufferedReader br = new BufferedReader(new FileReader(archivoIn));
-                BufferedWriter bw = new BufferedWriter(new FileWriter(archivoOut))) {
+             BufferedWriter bw = new BufferedWriter(new FileWriter(archivoOut))) {
             String linea;
             while ((linea = br.readLine()) != null) {
-                String[] atributos = linea.split(","); // Separar atributos por coma
+                String[] atributos = linea.split(",");
                 if (Integer.parseInt(atributos[2]) == identificacion) {
                     for (int i = 0; i <= 4; i++) {
-                        if (Integer.parseInt(atributos[i]) == posicion) {
+                        if (i == posicion) {
                             atributos[i] = cambio;
-                            linea = atributos[0] + "," + atributos[1] + "," + atributos[2] + "," + atributos[3] + ","
-                                    + atributos[4];
-                            break;
                         }
                     }
+                    linea = String.join(",", atributos);
                 }
-                bw.write(linea); // Escribir la línea en el archivo nuevo
+                bw.write(linea);
                 bw.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         archivoIn.delete();
-        archivoOut.renameTo(archivoIn);
-        System.out.println("Se ha eliminado corectamente");
+        archivoOut.renameTo(new File("USUARIO.txt"));
+        System.out.println("Se ha modificado correctamente.");
     }
+    
 
-    public static void mostrarMenuAdmin() {
+    public static void mostrarMenuAdministrador() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("=== Administrador ===");
-        System.out.println("=== Desea ingresar a: ===");
-        System.out.println("1. Usuarios");
-        System.out.println("2. Cuentas");
-        System.out.println("Selecciona una opcion: ");
-        int opcion = scanner.nextInt();
-        scanner.nextLine();
-        switch (opcion) {
-            case 1:
-                mostrarMenuUsuarios();
-                break;
-            default:
-                break;
-        }
-
-    }
-
-    public static void mostrarMenuUsuarios() {
-        Scanner scanner = new Scanner(System.in);
         System.out.println("=== Desea ===");
-        System.out.println("1. Crear");
-        System.out.println("2. Borrar");
-        System.out.println("3. Modificar");
+        System.out.println("1. Crear usuario");
+        System.out.println("2. Borrar usuario");
+        System.out.println("3. Modificar usuario");
         System.out.print("Selecciona una opción: ");
         int opcion = scanner.nextInt();
         scanner.nextLine();
@@ -277,4 +234,25 @@ public class Usuario {
         System.out.println("4. Ver reporte de cuentas");
         System.out.print("Selecciona una opción: ");
     }
+
+    // ==================== Obtener usuario ====================
+    public static Usuario getUser(int identificacion) { // Iniciar sesion
+        String nombreArchivo = "USUARIO.txt";
+        Usuario usuario = null;
+        try (BufferedReader br = new BufferedReader(new FileReader(nombreArchivo))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                String[] atributos = linea.split(",");
+                if (identificacion == Integer.parseInt(atributos[2])) {
+                    usuario = new Usuario(atributos[0], atributos[1], Integer.parseInt((atributos[2])), atributos[3],
+                            Integer.parseInt((atributos[4])), Boolean.parseBoolean(atributos[5]));
+                    return usuario;
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
+        }
+        return usuario;
+    }
+
 }
